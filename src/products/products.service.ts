@@ -16,7 +16,7 @@ export class ProductsService {
   ) {}
 
   // Create el producto nuevo guardandolo en la base de datos con sus datos
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto): Promise<Product> {
     try {
       const newProduct = await this.productModel.create(createProductDto);
       return newProduct.save();
@@ -28,7 +28,7 @@ export class ProductsService {
   }
 
   // Busca todos los productos y los devuelve
-  async findAll() {
+  async findAll(): Promise<Product[]> {
     try {
       const products = await this.productModel.find();
       return products;
@@ -39,7 +39,7 @@ export class ProductsService {
   }
 
   // Busca por ID el producto y lo devuelve
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Product> {
     try {
       const product = await this.productModel.findById(id);
       return product;
@@ -50,7 +50,10 @@ export class ProductsService {
   }
 
   // Por ID actualizamos el producto y lo devuelve
-  async update(id: number, updateProductDto: UpdateProductDto) {
+  async update(
+    id: number,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> {
     try {
       const updateProduct = await this.productModel.findByIdAndUpdate(
         id,
@@ -64,7 +67,7 @@ export class ProductsService {
   }
 
   //Eliminamos el producto con ID
-  async remove(id: number) {
+  async remove(id: number): Promise<Product> {
     try {
       const removeProduct = await this.productModel.findByIdAndDelete(id);
       return removeProduct;
