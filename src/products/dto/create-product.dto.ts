@@ -24,6 +24,6 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   //Validamos que el price sea un numero
-  @IsNumber()
+  // @IsNumber()
   price: number;
 }

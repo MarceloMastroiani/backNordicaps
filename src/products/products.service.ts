@@ -1,13 +1,17 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+
+import { v2 as cloudinary } from 'cloudinary';
 
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './schema/productSchema';
 
 @Injectable()
-//Clase que contiene todas las funciones de la API de productos
+
+//CLASE QUE CONTIENE TODAS LAS FUNCIONES DE LA API DE PRODUCTOS
 export class ProductsService {
   constructor(
     //Inyectamos el modelo de la base de datos
@@ -15,11 +19,41 @@ export class ProductsService {
     private productModel: Model<Product>,
   ) {}
 
-  // Create el producto nuevo guardandolo en la base de datos con sus datos
-  async create(createProductDto: CreateProductDto): Promise<Product> {
+  //SUBIMOS LA IMAGEN A CLOUDINARY Y OBTENEMOS EL SECURE_URL
+  async uploadImage(file: Express.Multer.File): Promise<string> {
     try {
-      const newProduct = await this.productModel.create(createProductDto);
+      //options de la imagen
+      const options = {
+        use_filename: true,
+        unique_filename: false,
+        overwrite: true,
+      };
+      //Subimos la imagen a cloudinary
+      const result = await cloudinary.uploader.upload(file.path, options);
+      //Si no da error, devolvemos el secure_url
+      return result.secure_url;
+    } catch (err) {
+      if (err instanceof Error)
+        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  //CREA EL PRODUCTO NUEVO Y LO GUARDA EN LA BASE DE DATOS CON SUS DATOS
+  async create(body: CreateProductDto, fileUrl: string): Promise<Product> {
+    try {
+      const { name, description, price } = body;
+      //Creamos el nuevo producto
+      const product = new this.productModel({
+        name,
+        description,
+        price: Number(price),
+        fileUrl,
+      });
+
+      const newProduct = await this.productModel.create(product);
+      //Subimos la data a mongoDB
       return newProduct.save();
+      //error
     } catch (err) {
       if (err instanceof Error)
         //Si da error, lanzamos una excepcion con el mensaje de error y el codigo de error
@@ -27,7 +61,7 @@ export class ProductsService {
     }
   }
 
-  // Busca todos los productos y los devuelve
+  //BUSCA TODOS LOS PRODUCTOS EN LA DB Y LO DEVUELVE
   async findAll(): Promise<Product[]> {
     try {
       const products = await this.productModel.find();
@@ -38,7 +72,7 @@ export class ProductsService {
     }
   }
 
-  // Busca por ID el producto y lo devuelve
+  //BUSCA UN PRODUCTO POR ID Y LO DEVUELVE
   async findOne(id: number): Promise<Product> {
     try {
       const product = await this.productModel.findById(id);
@@ -49,7 +83,7 @@ export class ProductsService {
     }
   }
 
-  // Por ID actualizamos el producto y lo devuelve
+  //ACTUALIZAMOS EL PRODUCTO CON ID Y LO GUARDAMOS EN LA BASE DE DATOS
   async update(
     id: number,
     updateProductDto: UpdateProductDto,
@@ -66,7 +100,7 @@ export class ProductsService {
     }
   }
 
-  //Eliminamos el producto con ID
+  //ELIMINAMOS EL PRODUCTO CON ID
   async remove(id: number): Promise<Product> {
     try {
       const removeProduct = await this.productModel.findByIdAndDelete(id);

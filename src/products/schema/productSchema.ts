@@ -1,6 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { Image } from '../../cloudinary/schema/imageSchema';
 
 @Schema({
   //Timestamps le indica a mongoose que asigne los campos createdAt y updatedAt
@@ -20,8 +18,8 @@ export class Product {
   price: number;
 
   //imagen del producto
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Image' })
-  image: Image;
+  @Prop({ required: true })
+  fileUrl: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
