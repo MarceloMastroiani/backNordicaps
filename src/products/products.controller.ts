@@ -10,16 +10,13 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
+import { multerConfig } from './multer.provider';
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import { v2 as cloudinary } from 'cloudinary';
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-});
+import * as fs from 'fs-extra';
 
 @Controller('products')
 export class ProductsController {
@@ -27,7 +24,7 @@ export class ProductsController {
 
   //CREAR UN PRODUCTO CON SU IMAGEN
   @Post('create')
-  @UseInterceptors(FileInterceptor('file', { storage }))
+  @UseInterceptors(FileInterceptor('file', multerConfig))
   async create(
     //obtenemos los datos del producto atraves del body
     //EL DTO MUESTRA LOS ERRORES DE VALIDACION PERO LA IMAGEN SE SUBE A CLOUDINARY
@@ -38,10 +35,19 @@ export class ProductsController {
     try {
       //subimos la imagen a cloudinary y obtenemos el secure_url
       const fileUrl = await this.productsService.uploadImage(file);
-      console.log('Controller: Image uploaded URL', fileUrl);
 
-      //se crea el producto
-      const product = await this.productsService.create(body, fileUrl);
+      //obtenemos el secure_url y el public_id desestructurados del fileUrl
+      const { secure_url, public_id } = fileUrl.result;
+
+      //borramos el archivo temporal para evitar que se llene de archivos, ya que el archivo se subio a cloudinary
+      await fs.emptyDir('./uploads');
+
+      //se crea el producto con la imagen subida
+      const product = await this.productsService.create(
+        body,
+        secure_url,
+        public_id,
+      );
       return product;
     } catch (err) {
       console.log(err);

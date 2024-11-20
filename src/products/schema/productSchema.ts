@@ -19,7 +19,10 @@ export class Product {
 
   //imagen del producto
   @Prop({ required: true })
-  fileUrl: string;
+  public_id: string;
+
+  @Prop({ required: true })
+  secure_url: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

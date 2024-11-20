@@ -16,7 +16,12 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 8080;
 
   //Habilitamos el validador de datos
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   //Iniciamos el servidor
   await app.listen(port);

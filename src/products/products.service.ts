@@ -20,8 +20,9 @@ export class ProductsService {
   ) {}
 
   //SUBIMOS LA IMAGEN A CLOUDINARY Y OBTENEMOS EL SECURE_URL
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(file): Promise<any> {
     try {
+      const filePath = file.path;
       //options de la imagen
       const options = {
         use_filename: true,
@@ -29,9 +30,10 @@ export class ProductsService {
         overwrite: true,
       };
       //Subimos la imagen a cloudinary
-      const result = await cloudinary.uploader.upload(file.path, options);
+      const result = await cloudinary.uploader.upload(filePath, options);
+
       //Si no da error, devolvemos el secure_url
-      return result.secure_url;
+      return { result };
     } catch (err) {
       if (err instanceof Error)
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -39,15 +41,22 @@ export class ProductsService {
   }
 
   //CREA EL PRODUCTO NUEVO Y LO GUARDA EN LA BASE DE DATOS CON SUS DATOS
-  async create(body: CreateProductDto, fileUrl: string): Promise<Product> {
+  async create(
+    body: CreateProductDto,
+    secure_url,
+    public_id,
+  ): Promise<Product> {
     try {
+      console.log(secure_url);
+      console.log(public_id);
       const { name, description, price } = body;
       //Creamos el nuevo producto
       const product = new this.productModel({
         name,
         description,
         price: Number(price),
-        fileUrl,
+        secure_url,
+        public_id,
       });
 
       const newProduct = await this.productModel.create(product);
