@@ -8,6 +8,8 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  ParseUUIDPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { multerConfig } from './multer.provider';
@@ -61,9 +63,9 @@ export class ProductsController {
   }
 
   //OBTENEMOS UN PRODUCTO POR SU ID
-  @Get('product/:id')
+  @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.productsService.findOne(+id);
+    return await this.productsService.findOne(id);
   }
 
   //ACTUALIZAMOS UN PRODUCTO POR SU ID
@@ -72,12 +74,12 @@ export class ProductsController {
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    return await this.productsService.update(+id, updateProductDto);
+    return await this.productsService.update(id, updateProductDto);
   }
 
   //ELIMINAMOS UN PRODUCTO POR SU ID
   @Delete('remove/:id')
   async remove(@Param('id') id: string) {
-    return await this.productsService.remove(+id);
+    return await this.productsService.remove(id);
   }
 }

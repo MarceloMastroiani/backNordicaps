@@ -7,6 +7,7 @@ import {
   MinLength,
   IsOptional,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
   @IsOptional()
@@ -21,5 +22,6 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
 
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   price?: number;
 }

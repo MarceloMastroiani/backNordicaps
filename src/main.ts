@@ -15,6 +15,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 8080;
 
+  //prefijo "api"
+  app.setGlobalPrefix('api');
+
   //Habilitamos el validador de datos
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,5 +28,6 @@ async function bootstrap() {
 
   //Iniciamos el servidor
   await app.listen(port);
+  console.log(`Servidor corriendo en el puerto ${port}`);
 }
 bootstrap();

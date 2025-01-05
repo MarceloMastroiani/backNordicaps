@@ -82,10 +82,9 @@ export class ProductsService {
   }
 
   //BUSCA UN PRODUCTO POR ID Y LO DEVUELVE
-  async findOne(id: number): Promise<Product> {
+  async findOne(id: string): Promise<Product> {
     try {
-      const product = await this.productModel.findById(id);
-      return product;
+      return await this.productModel.findById(id);
     } catch (err) {
       if (err instanceof Error)
         throw new HttpException(err.message, HttpStatus.NOT_FOUND);
@@ -94,15 +93,13 @@ export class ProductsService {
 
   //ACTUALIZAMOS EL PRODUCTO CON ID Y LO GUARDAMOS EN LA BASE DE DATOS
   async update(
-    id: number,
+    id: string,
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
     try {
-      const updateProduct = await this.productModel.findByIdAndUpdate(
-        id,
-        updateProductDto,
-      );
-      return updateProduct;
+      return this.productModel.findByIdAndUpdate(id, updateProductDto, {
+        new: true,
+      });
     } catch (err) {
       if (err instanceof Error)
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -110,7 +107,7 @@ export class ProductsService {
   }
 
   //ELIMINAMOS EL PRODUCTO CON ID
-  async remove(id: number): Promise<Product> {
+  async remove(id: string): Promise<Product> {
     try {
       const removeProduct = await this.productModel.findByIdAndDelete(id);
       return removeProduct;
