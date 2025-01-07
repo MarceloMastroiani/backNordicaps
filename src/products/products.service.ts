@@ -109,8 +109,7 @@ export class ProductsService {
   //ELIMINAMOS EL PRODUCTO CON ID
   async remove(id: string): Promise<Product> {
     try {
-      const removeProduct = await this.productModel.findByIdAndDelete(id);
-      return removeProduct;
+      return this.productModel.findByIdAndDelete(id);
     } catch (err) {
       if (err instanceof Error)
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
